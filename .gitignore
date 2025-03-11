@@ -100,6 +100,9 @@ mypy_cache/
 dmypy.json
 dmypy.json
 
+.vscode/
+Pipfile
+
 # Pyre type checker
 pyre/
 
