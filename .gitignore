@@ -84,6 +84,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env
 
 # Spyder project settings
 spyderproject
@@ -100,6 +101,8 @@ mypy_cache/
 dmypy.json
 dmypy.json
 
+.venv
+
 .vscode/
 Pipfile
 
@@ -114,3 +117,4 @@ cython_debug/
 
 # PyCharm
 idea/
+
