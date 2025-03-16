@@ -1,34 +1,37 @@
 from body_part import Head, Torso, Legs, Accessory, BodyPartType
-from creator import Creator
+from creator import Creator, VersionManager
 from typing import Optional
+from abc import ABC, abstractmethod
 
-class Command():
+class BaseCommand(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+
+class NewVersionCommand(BaseCommand):
     def __init__(self, head: Optional[Head], torso: Optional[Torso], legs: Optional[Legs], accessory: Optional[Accessory]):
         self.head = head
         self.torso = torso
         self.legs = legs
         self.accessory = accessory
 
-    def __str__(self):
-        return self.head.get_name() + " " + self.torso.get_name() + " " + self.legs.get_name() + " " + self.accessory.get_name()
-
     def execute(self):
-        Creator().select_body_parts({
+        VersionManager.get_instance().save_snapshot()
+        Creator.get_instance().select_body_parts({
             BodyPartType.HEAD: self.head,
             BodyPartType.TORSO: self.torso,
             BodyPartType.LEGS: self.legs,
             BodyPartType.ACCESSORY: self.accessory
         })
 
-
-class CommandBuilder:
+class NewVersionCommandBuilder:
     _instance = None
 
     @staticmethod
     def get_instance():
-        if CommandBuilder._instance is None:
-            CommandBuilder._instance = CommandBuilder()
-        return CommandBuilder._instance
+        if NewVersionCommandBuilder._instance is None:
+            NewVersionCommandBuilder._instance = NewVersionCommandBuilder()
+        return NewVersionCommandBuilder._instance
 
     def __init__(self):
         if not hasattr(self, "_initialized"):  
@@ -61,11 +64,23 @@ class CommandBuilder:
         self.accessory = accessory
         return self
 
-    def build(self) -> Command:
-        command = Command(self.head, self.torso, self.legs, self.accessory)
+    def build(self) -> NewVersionCommand:
+        command = NewVersionCommand(self.head, self.torso, self.legs, self.accessory)
         return command
 
+class UndoCommand(BaseCommand):
+    def __init__(self):
+        super().__init__()
+    
+    def execute(self):
+        VersionManager.get_instance().undo()
 
+class RedoCommand(BaseCommand):
+    def __init__(self):
+        super().__init__()
+    
+    def execute(self):
+        VersionManager.get_instance().redo()
 
 
 
