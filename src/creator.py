@@ -1,5 +1,4 @@
 from body_part import BodyPartType, BodyPart
-from command import Command
 import copy
 
 class Snapshot():
@@ -26,12 +25,9 @@ class Creator:
     def _initialize(self, available_body_parts):
         if not hasattr(self, "_initialized"):
             self.available_body_parts: dict[BodyPartType, set[BodyPart]] = available_body_parts
-            self.initial_selected_body_parts: dict[BodyPartType, BodyPart] = {
-                key: value for key, value in available_body_parts.items()
+            self.selected_body_parts: dict[BodyPartType, BodyPart] = {
+                key: list(value)[0] for key, value in available_body_parts.items()
             }
-            self.snapshots: list[Snapshot] = [
-                Snapshot(self.initial_selected_body_parts)
-            ]
             self._initialized = True
     
     def get_available_body_parts(self, type: BodyPartType) -> set[BodyPart]:
@@ -42,20 +38,12 @@ class Creator:
     
     # Esto nos devuelve las que están seleccionadas en ese momento
     def get_selected_body_part(self, type: BodyPartType) -> BodyPart | None:
-        if len(self.snapshots) == 0:
-            return None
-        snapshot: Snapshot = self.snapshots[-1]
-        return snapshot.get_selected_body_part(type)
+        return self.selected_body_parts.get(type, None)
     
     def select_body_parts(self, body_parts: dict[BodyPartType, BodyPart]):
-        snapshot: Snapshot = None
-        if len(self.snapshots) == 0:
-            snapshot = Snapshot(self.initial_selected_body_parts)
-        else:
-            snapshot = self.snapshots[-1]
         for part in self.available_body_parts.keys():
             if part not in body_parts or body_parts[part] is None:
-                body_parts[part] = snapshot.get_selected_body_part(part)
+                body_parts[part] = self.get_selected_body_part(part)
         for type, part in body_parts.items():
             if type not in self.available_body_parts:
                 print(f"Body part type {type} not found")
@@ -63,5 +51,11 @@ class Creator:
             if part not in self.available_body_parts[type]:
                 print(f"Body part {part} not available for type {type}")
                 return
-        self.snapshots.append(Snapshot(body_parts))
-        
+            self.selected_body_parts[type] = part
+    
+    def load_snapshot(self, snapshot: Snapshot):
+        for type in self.available_body_parts.keys():
+            self.selected_body_parts[type] = snapshot.get_selected_body_part(type)
+
+    def generate_snapshot(self) -> Snapshot:
+        return Snapshot(self.selected_body_parts)
