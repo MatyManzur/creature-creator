@@ -43,7 +43,7 @@ def main():
     screen: Screen = Screen(left_frame)
     creator.subscribe_callback(screen.update_screen)
 
-    ttk.Label(right_frame, text="Options").grid(row=0, column=0, columnspan=4, pady=10)
+    #ttk.Label(right_frame, text="Options").grid(row=0, column=0, columnspan=4, pady=10)
 
 
     row_index = 1

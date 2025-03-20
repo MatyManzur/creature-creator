@@ -19,7 +19,7 @@ class ImageLoader():
                 image_path = os.path.join(folder_path, filename)
                 image = Image.open(image_path)
                 if scale != 1.0:
-                    image = image.resize((int(image.width * scale), int(image.height * scale)), Image.ANTIALIAS)
+                    image = image.resize((int(image.width * scale), int(image.height * scale)), Image.Resampling.LANCZOS)
                 sprite = ImageTk.PhotoImage(image)
                 sprite_name = filename.split(".")[0]
                 sprites.append(Sprite(sprite_name, sprite))
