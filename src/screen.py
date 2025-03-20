@@ -10,7 +10,7 @@ class Screen():
         self.creator = Creator.get_instance()
 
     def update_screen(self):
-        print(f"{self.creator.get_selected_body_part(BodyPartType.HEAD)}, {self.creator.get_selected_body_part(BodyPartType.TORSO)}, {self.creator.get_selected_body_part(BodyPartType.LEGS)}, {self.creator.get_selected_body_part(BodyPartType.ACCESSORY)}")
+        #print(f"{self.creator.get_selected_body_part(BodyPartType.HEAD)}, {self.creator.get_selected_body_part(BodyPartType.TORSO)}, {self.creator.get_selected_body_part(BodyPartType.LEGS)}, {self.creator.get_selected_body_part(BodyPartType.ACCESSORY)}")
         head_sprite = self.creator.get_selected_body_part(BodyPartType.HEAD).get_sprite()
         torso_sprite = self.creator.get_selected_body_part(BodyPartType.TORSO).get_sprite()
         legs_sprite = self.creator.get_selected_body_part(BodyPartType.LEGS).get_sprite()

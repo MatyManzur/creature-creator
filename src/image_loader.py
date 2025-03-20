@@ -26,9 +26,9 @@ class ImageLoader():
 
     def load_sprites(self) -> dict[BodyPartType, list[BodyPart]]:
         sprites = {
-            BodyPartType.HEAD: [Head(sprite.name, sprite.sprite) for sprite in self.__load_from_folder(self.heads_path)],
-            BodyPartType.TORSO: [Torso(sprite.name, sprite.sprite) for sprite in self.__load_from_folder(self.torsos_path)],
-            BodyPartType.LEGS: [Legs(sprite.name, sprite.sprite) for sprite in self.__load_from_folder(self.legs_path)],
-            BodyPartType.ACCESSORY: [Accessory(sprite.name, sprite.sprite) for sprite in self.__load_from_folder(self.accessories_path)]
+            BodyPartType.HEAD: [Head(sprite.name, sprite.sprite, index) for index, sprite in enumerate(self.__load_from_folder(self.heads_path))],
+            BodyPartType.TORSO: [Torso(sprite.name, sprite.sprite, index) for index, sprite in enumerate(self.__load_from_folder(self.torsos_path))],
+            BodyPartType.LEGS: [Legs(sprite.name, sprite.sprite, index) for index, sprite in enumerate(self.__load_from_folder(self.legs_path))],
+            BodyPartType.ACCESSORY: [Accessory(sprite.name, sprite.sprite, index) for index, sprite in enumerate(self.__load_from_folder(self.accessories_path))]
         }
         return sprites

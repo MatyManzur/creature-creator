@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
@@ -23,6 +24,20 @@ def generate_simple_command(body_part: BodyPart):
     builder.build().execute()
     NewVersionCommandBuilder.get_instance().reset()
 
+
+
+def generate_random_command():
+    creator = Creator.get_instance()
+    body_parts = creator.get_available_body_parts(BodyPartType.HEAD)
+    head = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.HEAD)) - 1)]
+    body_parts = creator.get_available_body_parts(BodyPartType.TORSO)
+    torso = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.TORSO)) - 1)]
+    body_parts = creator.get_available_body_parts(BodyPartType.LEGS)
+    legs = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.LEGS)) - 1)]
+    body_parts = creator.get_available_body_parts(BodyPartType.ACCESSORY)
+    accessory = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.ACCESSORY)) - 1)]
+    NewVersionCommandBuilder.get_instance().set_head(head).set_torso(torso).set_legs(legs).set_accessory(accessory).build().execute()
+    NewVersionCommandBuilder.get_instance().reset()
 
 def main():
     root = tk.Tk()
@@ -60,15 +75,10 @@ def main():
     creator.subscribe_callback(screen.update_screen)
 
     ttk.Label(right_frame, text="Options").grid(row=0, column=0, columnspan=4, pady=10)
-    go_back_icon = tk.PhotoImage(file='./src/assets/button_icons/go_back.png').subsample(65,65)
-    go_back_button = ttk.Button(right_frame, text="Back", command=UndoCommand().execute, image=go_back_icon)
-    go_back_button.grid(row=0, column=3, padx=40, pady=10, sticky="e")
-    go_forward_icon = tk.PhotoImage(file='./src/assets/button_icons/go_forward.png').subsample(65,65)
-    go_forward_button = ttk.Button(right_frame, text="Forward", command=RedoCommand().execute, image=go_forward_icon)
-    go_forward_button.grid(row=0, column=3, pady=10, sticky="e")
+
 
     row_index = 1
-    max_per_row = 3
+    max_per_row = 4
     vars = {}
     for value in BodyPartType.__members__.keys():
         ttk.Label(right_frame, text=value).grid(row=row_index, column=0, padx=10, pady=5, sticky="w")
@@ -78,17 +88,48 @@ def main():
         for i in range(len(body_parts)):  
             col_index = (i % max_per_row) + 1  
             row_offset = i // max_per_row  
-            radiobutton = ttk.Radiobutton(right_frame, text=f"{body_parts[i].get_name()}", variable=vars[value], value=i)
+            radiobutton = ttk.Radiobutton(right_frame, text=f"{body_parts[i].get_name()}", variable=vars[value], value=body_parts[i].get_index(),
+                                          command=lambda curr_body_part=body_parts, v=value: generate_simple_command(curr_body_part[vars[v].get()]))
             radiobutton.grid(row=row_index + row_offset, column=col_index, padx=5, pady=5)
-        # Esto es para que se llame a la función aunque cambies el valor del radiobutton de una manera distinta clickearlo, 
-        # si solo querés que se llame cuando clickeás, sacá el trace_add y poné el command en el radiobutton
         vars[value].set(0)
-        vars[value].trace_add("write", lambda *args, curr_body_part=body_parts, v=value: generate_simple_command(curr_body_part[vars[v].get()]))
         
         separator = ttk.Separator(right_frame, orient='horizontal')
-        separator.grid(row=row_index + (6 // max_per_row), column=0, columnspan=4, sticky="ew")
+        separator.grid(row=row_index + (6 // max_per_row), column=0, columnspan=5, sticky="ew")
         row_index += (6 // max_per_row) + 1 
 
+    def update_vars():
+        creator = Creator.get_instance()
+        body_parts = {
+            BodyPartType.HEAD,
+            BodyPartType.TORSO,
+            BodyPartType.LEGS,
+            BodyPartType.ACCESSORY,
+        }
+        for part_type in body_parts:
+            vars[part_type.name].set(creator.get_selected_body_part(part_type).get_index())
+
+    def random_command_with_vars_update():
+        generate_random_command()
+        update_vars()
+
+    def undo_command_with_vars_update():
+        UndoCommand().execute()
+        update_vars()
+
+    def redo_command_with_vars_update():
+        RedoCommand().execute()
+        update_vars()
+
+
+    dice_icon = tk.PhotoImage(file='./src/assets/button_icons/dice.png').subsample(80,80)
+    random_button = ttk.Button(right_frame, text="Random", command=random_command_with_vars_update, image=dice_icon)
+    random_button.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+    go_back_icon = tk.PhotoImage(file='./src/assets/button_icons/go_back.png').subsample(65,65)
+    go_back_button = ttk.Button(right_frame, text="Back", command=undo_command_with_vars_update, image=go_back_icon)
+    go_back_button.grid(row=0, column=3, padx=40, pady=10, sticky="e")
+    go_forward_icon = tk.PhotoImage(file='./src/assets/button_icons/go_forward.png').subsample(65,65)
+    go_forward_button = ttk.Button(right_frame, text="Forward", command=redo_command_with_vars_update, image=go_forward_icon)
+    go_forward_button.grid(row=0, column=3, pady=10, sticky="e")
 
     root.mainloop()
 
