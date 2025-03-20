@@ -22,13 +22,15 @@ def main():
 
     creator: Creator = Creator.get_instance(image_loader.load_sprites())
 
-    # Create a main frame to hold the two sections
-    main_frame = tk.Frame(root)
-    main_frame.pack(fill=tk.BOTH, expand=True)
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
 
-    # Set up the main frame
+    # Create a main frame to hold the two sections
     main_frame = tk.Frame(root, width=400, height=200)
-    main_frame.pack(fill=tk.BOTH, expand=True)
+    main_frame.grid(row=0, column=0, sticky="nsew")
+
+    footer = tk.Frame(root, width=400, height=20)
+    footer.grid(row=1, column=0, sticky="ew")
 
     # Left section with images
     left_frame = tk.Frame(main_frame, width=200, height=200, bg="lightgray")
@@ -77,15 +79,15 @@ def main():
         for part_type in body_parts:
             vars[part_type.name].set(creator.get_selected_body_part(part_type).get_index())
 
-    def random_command_with_vars_update():
+    def random_command_with_vars_update(*args):
         generate_random_command()
         update_vars()
 
-    def undo_command_with_vars_update():
+    def undo_command_with_vars_update(*args):
         UndoCommand().execute()
         update_vars()
 
-    def redo_command_with_vars_update():
+    def redo_command_with_vars_update(*args):
         RedoCommand().execute()
         update_vars()
 
@@ -99,6 +101,13 @@ def main():
     go_forward_icon = tk.PhotoImage(file='./src/assets/button_icons/go_forward.png').subsample(65,65)
     go_forward_button = ttk.Button(right_frame, text="Redo", command=redo_command_with_vars_update, image=go_forward_icon)
     go_forward_button.grid(row=0, column=4, padx=10, pady=10, sticky="e")
+
+    root.bind("<Control-z>", undo_command_with_vars_update)
+    root.bind("<Control-y>", redo_command_with_vars_update)
+    root.bind("<Control-r>", random_command_with_vars_update)
+
+    footer_label = ttk.Label(footer, text="Ctrl+Z: Undo | Ctrl+Y: Redo | Ctrl+R: Randomize")
+    footer_label.pack(side=tk.LEFT, padx=10)
 
     root.mainloop()
 
