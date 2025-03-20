@@ -1,6 +1,7 @@
 from body_part import BodyPartType, BodyPart
 import copy
 
+# Used for the Memento pattern
 class Snapshot():
     def __init__(self, selected_body_parts: dict[BodyPartType, BodyPart]):
         self.selected_body_parts: dict[BodyPartType, BodyPart] = copy.copy(selected_body_parts)
@@ -14,6 +15,7 @@ class Snapshot():
 class Creator:
     _instance = None
 
+    # Singleton pattern
     @staticmethod
     def get_instance(available_body_parts=None):
         if Creator._instance is None:
@@ -42,7 +44,6 @@ class Creator:
         self.callbacks.append(callback)
         callback()
     
-    # Esto nos devuelve las que están seleccionadas en ese momento
     def get_selected_body_part(self, type: BodyPartType) -> BodyPart | None:
         return self.selected_body_parts.get(type, None)
     
@@ -61,12 +62,14 @@ class Creator:
         for callback in self.callbacks:
             callback()
     
+    # Memento pattern
     def load_snapshot(self, snapshot: Snapshot):
         for type in self.available_body_parts.keys():
             self.selected_body_parts[type] = snapshot.get_selected_body_part(type)
         for callback in self.callbacks:
             callback()
 
+    # Memento pattern
     def generate_snapshot(self) -> Snapshot:
         return Snapshot(self.selected_body_parts)
     
@@ -74,6 +77,7 @@ class Creator:
 class VersionManager():
     _instance = None
 
+    # Singleton pattern
     @staticmethod
     def get_instance():
         if VersionManager._instance is None:
@@ -105,9 +109,3 @@ class VersionManager():
         current_snapshot = self.__next_snapshots.pop()
         self.__prev_snapshots.append(Creator.get_instance().generate_snapshot())
         Creator.get_instance().load_snapshot(current_snapshot)
-
-
-
-# vaca
-# gato
-# 

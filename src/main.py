@@ -1,43 +1,12 @@
-import random
 import tkinter as tk
 from tkinter import ttk
-from tkinter.messagebox import showinfo
-from body_part import BodyPart, BodyPartType
-from window_config import prepare_window, show_message
+from body_part import BodyPartType
+from window_config import prepare_window
 from image_loader import ImageLoader
-from command import NewVersionCommandBuilder, UndoCommand, RedoCommand
+from command import UndoCommand, RedoCommand, generate_random_command, generate_simple_command
 from creator import Creator
 from screen import Screen
-import os
 
-builder_methods = {
-    BodyPartType.HEAD: NewVersionCommandBuilder.get_instance().set_head,
-    BodyPartType.TORSO: NewVersionCommandBuilder.get_instance().set_torso,
-    BodyPartType.LEGS: NewVersionCommandBuilder.get_instance().set_legs,
-    BodyPartType.ACCESSORY: NewVersionCommandBuilder.get_instance().set_accessory,
-}
-
-def generate_simple_command(body_part: BodyPart):
-    type: BodyPartType = body_part.get_body_part_type()
-    builder = NewVersionCommandBuilder.get_instance()
-    builder_methods[type](body_part)
-    builder.build().execute()
-    NewVersionCommandBuilder.get_instance().reset()
-
-
-
-def generate_random_command():
-    creator = Creator.get_instance()
-    body_parts = creator.get_available_body_parts(BodyPartType.HEAD)
-    head = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.HEAD)) - 1)]
-    body_parts = creator.get_available_body_parts(BodyPartType.TORSO)
-    torso = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.TORSO)) - 1)]
-    body_parts = creator.get_available_body_parts(BodyPartType.LEGS)
-    legs = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.LEGS)) - 1)]
-    body_parts = creator.get_available_body_parts(BodyPartType.ACCESSORY)
-    accessory = body_parts[random.randint(0, len(creator.get_available_body_parts(BodyPartType.ACCESSORY)) - 1)]
-    NewVersionCommandBuilder.get_instance().set_head(head).set_torso(torso).set_legs(legs).set_accessory(accessory).build().execute()
-    NewVersionCommandBuilder.get_instance().reset()
 
 def main():
     root = tk.Tk()
@@ -48,7 +17,7 @@ def main():
         heads_path="./src/assets/body_parts/heads/",
         torsos_path="./src/assets/body_parts/torsos/",
         legs_path="./src/assets/body_parts/legs/",
-        accessories_path="./src/assets/body_parts/heads/"
+        wings_path="./src/assets/body_parts/wings/"
     )
 
     creator: Creator = Creator.get_instance(image_loader.load_sprites())
@@ -90,7 +59,7 @@ def main():
             row_offset = i // max_per_row  
             radiobutton = ttk.Radiobutton(right_frame, text=f"{body_parts[i].get_name()}", variable=vars[value], value=body_parts[i].get_index(),
                                           command=lambda curr_body_part=body_parts, v=value: generate_simple_command(curr_body_part[vars[v].get()]))
-            radiobutton.grid(row=row_index + row_offset, column=col_index, padx=5, pady=5)
+            radiobutton.grid(row=row_index + row_offset, column=col_index, padx=5, pady=5, sticky="w")
         vars[value].set(0)
         
         separator = ttk.Separator(right_frame, orient='horizontal')
@@ -103,7 +72,7 @@ def main():
             BodyPartType.HEAD,
             BodyPartType.TORSO,
             BodyPartType.LEGS,
-            BodyPartType.ACCESSORY,
+            BodyPartType.WINGS,
         }
         for part_type in body_parts:
             vars[part_type.name].set(creator.get_selected_body_part(part_type).get_index())
@@ -125,11 +94,11 @@ def main():
     random_button = ttk.Button(right_frame, text="Random", command=random_command_with_vars_update, image=dice_icon)
     random_button.grid(row=0, column=0, padx=10, pady=10, sticky="e")
     go_back_icon = tk.PhotoImage(file='./src/assets/button_icons/go_back.png').subsample(65,65)
-    go_back_button = ttk.Button(right_frame, text="Back", command=undo_command_with_vars_update, image=go_back_icon)
-    go_back_button.grid(row=0, column=3, padx=40, pady=10, sticky="e")
+    go_back_button = ttk.Button(right_frame, text="Undo", command=undo_command_with_vars_update, image=go_back_icon)
+    go_back_button.grid(row=0, column=3, padx=0, pady=10, sticky="e")
     go_forward_icon = tk.PhotoImage(file='./src/assets/button_icons/go_forward.png').subsample(65,65)
-    go_forward_button = ttk.Button(right_frame, text="Forward", command=redo_command_with_vars_update, image=go_forward_icon)
-    go_forward_button.grid(row=0, column=3, pady=10, sticky="e")
+    go_forward_button = ttk.Button(right_frame, text="Redo", command=redo_command_with_vars_update, image=go_forward_icon)
+    go_forward_button.grid(row=0, column=4, padx=10, pady=10, sticky="e")
 
     root.mainloop()
 

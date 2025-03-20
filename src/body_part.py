@@ -1,4 +1,3 @@
-import abc
 from enum import Enum
 from abc import ABC
 from sprite import Sprite
@@ -7,7 +6,7 @@ class BodyPartType(Enum):
     HEAD = 1,
     TORSO = 2,
     LEGS = 3,
-    ACCESSORY = 4
+    WINGS = 4
 
 class BodyPart(ABC):
     def __init__(self, name: str, body_part_type: BodyPartType, sprite: Sprite, index: int):
@@ -49,6 +48,6 @@ class Legs(BodyPart):
     def __init__(self, name: str, sprite: Sprite, index: int):
         super().__init__(name, BodyPartType.LEGS, sprite, index)
 
-class Accessory(BodyPart):
+class Wings(BodyPart):
     def __init__(self, name: str, sprite: Sprite, index: int):
-        super().__init__(name, BodyPartType.ACCESSORY, sprite, index)
+        super().__init__(name, BodyPartType.WINGS, sprite, index)

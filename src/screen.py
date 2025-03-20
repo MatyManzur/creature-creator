@@ -10,11 +10,11 @@ class Screen():
         self.creator = Creator.get_instance()
 
     def update_screen(self):
-        #print(f"{self.creator.get_selected_body_part(BodyPartType.HEAD)}, {self.creator.get_selected_body_part(BodyPartType.TORSO)}, {self.creator.get_selected_body_part(BodyPartType.LEGS)}, {self.creator.get_selected_body_part(BodyPartType.ACCESSORY)}")
+        #print(f"{self.creator.get_selected_body_part(BodyPartType.HEAD)}, {self.creator.get_selected_body_part(BodyPartType.TORSO)}, {self.creator.get_selected_body_part(BodyPartType.LEGS)}, {self.creator.get_selected_body_part(BodyPartType.WINGS)}")
         head_sprite = self.creator.get_selected_body_part(BodyPartType.HEAD).get_sprite()
         torso_sprite = self.creator.get_selected_body_part(BodyPartType.TORSO).get_sprite()
         legs_sprite = self.creator.get_selected_body_part(BodyPartType.LEGS).get_sprite()
-        accessory_sprite = self.creator.get_selected_body_part(BodyPartType.ACCESSORY).get_sprite()
+        wings_sprite = self.creator.get_selected_body_part(BodyPartType.WINGS).get_sprite()
 
         for widget in self.frame.winfo_children():
             widget.destroy()
@@ -23,7 +23,8 @@ class Screen():
         canvas.pack(fill=tk.BOTH, expand=True)
 
         y_offset = 50
-        for sprite in [head_sprite, torso_sprite, legs_sprite, accessory_sprite]:
+        canvas.create_image(100 - wings_sprite.width()/2, 1.35*y_offset, anchor=tk.NW, image=wings_sprite)
+        for sprite in [head_sprite, torso_sprite, legs_sprite]:
             img = sprite
             canvas.create_image(100 - img.width()/2, y_offset, anchor=tk.NW, image=img)
             y_offset += img.height()
