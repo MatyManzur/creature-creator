@@ -1,10 +1,10 @@
-# Home Assignment 1
+# Home Assignment 3
 **Subject**: Application or use cases of various design patterns
 **Students**:
 - Mauro Leandro Baez
 - Matias Manzur
 **Lecturer**: Maxim Glaida
-**Date**: 20/03/2025
+**Date**: 14/04/2025
 
 ## What is this?
 We decided to make a sims-like character creator, but instead of creating humans, you create animal mixes! It's as weird as it sounds... The animals themselves are made in 32 bits artstyle, so it might be a good idea to not maximize the window.

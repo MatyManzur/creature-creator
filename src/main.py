@@ -3,9 +3,11 @@ from tkinter import ttk
 from body_part import BodyPartType
 from window_config import prepare_window
 from image_loader import ImageLoader
-from command import UndoCommand, RedoCommand, generate_random_command, generate_simple_command
+from command import UndoCommand, RedoCommand, generate_random_command, generate_simple_command, GenerateStoryCommand
 from creator import Creator
 from screen import Screen
+import asyncio
+from async_tkinter_loop import async_handler, async_mainloop
 
 
 def main():
@@ -29,6 +31,30 @@ def main():
     main_frame = tk.Frame(root, width=400, height=200)
     main_frame.grid(row=0, column=0, sticky="nsew")
 
+    story_panel = tk.Frame(root, width=400, height=100, bg="lightblue")
+    story_panel.grid(row=2, column=0, sticky="ew")
+    story_panel.grid_propagate(False)  # Prevents auto-resizing
+
+    def update_story():
+        story = creator.get_story()
+        story_text.config(state="normal")
+        story_text.delete(1.0, tk.END)
+        story_text.insert(tk.END, story)
+        story_text.config(state="disabled")
+
+    generate_story_button = ttk.Button(story_panel, text="Generate Story", command=GenerateStoryCommand().execute)
+    generate_story_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+    story_scrollbar = tk.Scrollbar(story_panel, orient=tk.VERTICAL)
+    story_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    story_text = tk.Text(story_panel, wrap="word", height=10, state="disabled", bg="white", fg="black", yscrollcommand=story_scrollbar.set)
+    story_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    story_scrollbar.config(command=story_text.yview)
+
+    
+
     footer = tk.Frame(root, width=400, height=20)
     footer.grid(row=1, column=0, sticky="ew")
 
@@ -44,6 +70,7 @@ def main():
 
     screen: Screen = Screen(left_frame)
     creator.subscribe_callback(screen.update_screen)
+    creator.subscribe_callback(update_story)
 
     #ttk.Label(right_frame, text="Options").grid(row=0, column=0, columnspan=4, pady=10)
 
@@ -109,7 +136,8 @@ def main():
     footer_label = ttk.Label(footer, text="Ctrl+Z: Undo | Ctrl+Y: Redo | Ctrl+R: Randomize")
     footer_label.pack(side=tk.LEFT, padx=10)
 
-    root.mainloop()
+    async_mainloop(root)
+     
 
 if __name__ == "__main__":
     main()

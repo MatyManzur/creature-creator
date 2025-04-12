@@ -32,6 +32,7 @@ class Creator:
                 key: list(value)[0] for key, value in available_body_parts.items()
             }
             self.callbacks: list[callable] = []
+            self.story = ""
             self._initialized = True
     
     def get_available_body_parts(self, type: BodyPartType) -> set[BodyPart]:
@@ -61,6 +62,14 @@ class Creator:
             self.selected_body_parts[type] = part
         for callback in self.callbacks:
             callback()
+    
+    def set_story(self, story: str):
+        self.story = story
+        for callback in self.callbacks:
+            callback()
+
+    def get_story(self) -> str:
+        return self.story
     
     # Memento pattern
     def load_snapshot(self, snapshot: Snapshot):

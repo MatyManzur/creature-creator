@@ -3,6 +3,10 @@ from body_part import BodyPart, Head, Torso, Legs, Wings, BodyPartType
 from creator import Creator, VersionManager
 from typing import Optional
 from abc import ABC, abstractmethod
+from story_generator import generate_story
+from llm_proxy import LLMProxy
+from llm_client import OllamaClient
+from asyncio import Future
 
 class BaseCommand(ABC):
     @abstractmethod
@@ -117,5 +121,32 @@ def generate_simple_command(body_part: BodyPart):
     builder.build().execute()
     NewVersionCommandBuilder.get_instance().reset()
 
+llm_proxy = LLMProxy(OllamaClient("http://localhost:11434/api/generate"))
+model = "gemma3:1b"
+
+class GenerateStoryCommand(BaseCommand):
+    def __init__(self):
+        super().__init__()
+    
+    def execute(self):
+        creator = Creator.get_instance()
+        story: Future[str] = generate_story(
+            llm_proxy=llm_proxy,
+            head=creator.get_selected_body_part(BodyPartType.HEAD),
+            torso=creator.get_selected_body_part(BodyPartType.TORSO),
+            legs=creator.get_selected_body_part(BodyPartType.LEGS),
+            wings=creator.get_selected_body_part(BodyPartType.WINGS),
+            model=model
+        )
+        creator.set_story(story="Loading...")
+        def on_complete(_story: Future[str]):
+            try:
+                story = _story.result()
+                creator.set_story(story=story)
+            except:
+                creator.set_story(story="Error!")
+                pass
+        story.add_done_callback(on_complete)
+        
 
 
