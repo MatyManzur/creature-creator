@@ -14,10 +14,15 @@ We decided to make a sims-like character creator, but instead of creating humans
 **Requirements**: 
 - `python3.10` or higher
 - `pip`
+- Docker
 
 In order to run our project, just execute `install.sh` (or `install.bat` in Windows) in order to create a virtual environment and install the dependencies (Pillow & tk).
 
-Afterwards you can just run `./run.sh` (or `run.bat` in Windows).
+Then you can start the LLM server with Docker.
+`docker pull matymanzur/ollama-creature-creator`
+`docker run --rm -it -p 11434:11434 matymanzur/ollama-creature-creator`
+
+Finally, in another terminal you can just run `./run.sh` (or `run.bat` in Windows).
 
 **Note:** If by any reason pip is unable to install tkinter, and your system's python installation does not include it by default, you may need to install it with something like `sudo apt install python3-tk`. It is a package used for generating the GUI.
 

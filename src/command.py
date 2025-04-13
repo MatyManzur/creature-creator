@@ -7,6 +7,7 @@ from story_generator import generate_story
 from llm_proxy import LLMProxy
 from llm_client import OllamaClient
 from asyncio import Future
+from exceptions import RetryExceededError
 
 class BaseCommand(ABC):
     @abstractmethod
@@ -121,22 +122,20 @@ def generate_simple_command(body_part: BodyPart):
     builder.build().execute()
     NewVersionCommandBuilder.get_instance().reset()
 
-llm_proxy = LLMProxy(OllamaClient("http://localhost:11434/api/generate"))
-model = "llama3.2:1b"
-
 class GenerateStoryCommand(BaseCommand):
-    def __init__(self):
+    def __init__(self, model: str):
+        self.model = model
         super().__init__()
     
     def execute(self):
         creator = Creator.get_instance()
         story: Future[str] = generate_story(
-            llm_proxy=llm_proxy,
+            llm_proxy=LLMProxy.get_instance(),
             head=creator.get_selected_body_part(BodyPartType.HEAD),
             torso=creator.get_selected_body_part(BodyPartType.TORSO),
             legs=creator.get_selected_body_part(BodyPartType.LEGS),
             wings=creator.get_selected_body_part(BodyPartType.WINGS),
-            model=model
+            model=self.model
         )
         creator.set_story(story="Loading...")
         def on_complete(_story: Future[str]):
@@ -144,7 +143,9 @@ class GenerateStoryCommand(BaseCommand):
                 story = _story.result()
                 creator.set_story(story=story)
             except:
-                creator.set_story(story="Error!")
+                exception = _story.exception()
+                if isinstance(exception, RetryExceededError):
+                    creator.set_story(story=f"Error after {exception.retries} retries! {exception.reason}")
                 pass
         story.add_done_callback(on_complete)
         

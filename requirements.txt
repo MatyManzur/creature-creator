@@ -2,3 +2,4 @@ Pillow
 tk
 aiohttp
 async-tkinter-loop
+pyyaml

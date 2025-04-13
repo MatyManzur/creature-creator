@@ -8,6 +8,12 @@ from creator import Creator
 from screen import Screen
 import asyncio
 from async_tkinter_loop import async_handler, async_mainloop
+import yaml
+
+CONFIG_FILE = "config.yaml"
+with open(CONFIG_FILE, "r") as file:
+    config = yaml.safe_load(file)
+    MODELS = config.get("available_models", ["llama3.2:1b"])
 
 
 def main():
@@ -42,7 +48,7 @@ def main():
         story_text.insert(tk.END, story)
         story_text.config(state="disabled")
 
-    generate_story_button = ttk.Button(story_panel, text="Generate Story", command=GenerateStoryCommand().execute)
+    generate_story_button = ttk.Button(story_panel, text="Generate Story", command=GenerateStoryCommand(MODELS[0]).execute)
     generate_story_button.pack(side=tk.LEFT, padx=10, pady=10)
 
     story_scrollbar = tk.Scrollbar(story_panel, orient=tk.VERTICAL)

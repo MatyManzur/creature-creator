@@ -1,6 +1,8 @@
 from llm_client import OllamaClient
 from asyncio import Future
 import asyncio
+import yaml
+from exceptions import RetryExceededError
 
 def cut_after_last_dot(input_string):
     last_dot_index = input_string.rfind('.')
@@ -10,9 +12,25 @@ def cut_after_last_dot(input_string):
     else:
         return input_string 
 
+CONFIG_FILE = "config.yaml"
+with open(CONFIG_FILE, "r") as file:
+    config = yaml.safe_load(file)
+    OLLAMA_URL = config.get("ollama_server_url", "http://localhost:11434")
+
 class LLMProxy:
-    def __init__(self, client):
-        self.client: OllamaClient = client
+    _instance = None
+
+    # Singleton pattern
+    @staticmethod
+    def get_instance():
+        if LLMProxy._instance is None:
+            LLMProxy._instance = LLMProxy()
+        return LLMProxy._instance
+
+    def __init__(self):
+        if hasattr(self, "_initialized"):  
+            return
+        self.client: OllamaClient = OllamaClient.get_instance(OLLAMA_URL)
         self.cache: dict[str, str] = {}
 
     def query(self, prompt, model) -> Future[str]:
@@ -23,7 +41,11 @@ class LLMProxy:
         else:
             async def fetch_and_cache():
                 print("Fetching answer from LLM...", flush=True)
-                result = await self.client.query(prompt, model)
+                try:
+                    result = await self.client.query(prompt, model)
+                except RetryExceededError as e:
+                    future.set_exception(e)
+                    return
                 result = cut_after_last_dot(result)
                 self.cache[prompt] = result
                 future.set_result(result)
