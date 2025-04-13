@@ -122,7 +122,7 @@ def generate_simple_command(body_part: BodyPart):
     NewVersionCommandBuilder.get_instance().reset()
 
 llm_proxy = LLMProxy(OllamaClient("http://localhost:11434/api/generate"))
-model = "gemma3:1b"
+model = "llama3.2:1b"
 
 class GenerateStoryCommand(BaseCommand):
     def __init__(self):
