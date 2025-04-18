@@ -34,11 +34,13 @@ class LLMProxy:
         self.cache: dict[str, str] = {}
 
     def query(self, prompt, model) -> tuple[Future[str], bool]:
+        if model not in self.cache:
+            self.cache[model] = {}
         future = asyncio.get_running_loop().create_future()
         was_cached = False
-        if prompt in self.cache:
+        if prompt in self.cache[model]:
             print("Returning cached answer!")
-            future.set_result(self.cache[prompt])
+            future.set_result(self.cache[model][prompt])
             was_cached = True
         else:
             async def fetch_and_cache():
@@ -49,7 +51,7 @@ class LLMProxy:
                     future.set_exception(e)
                     return
                 result = cut_after_last_dot(result)
-                self.cache[prompt] = result
+                self.cache[model][prompt] = result
                 future.set_result(result)
             asyncio.create_task(fetch_and_cache())
         return future, was_cached

@@ -146,7 +146,7 @@ class GenerateStoryCommand(BaseCommand):
             except Exception as e:
                 exception = _story.exception()
                 if isinstance(exception, RetryExceededError):
-                    creator.set_story(story=f"Error after {exception.retries} retries! {exception.reason} {e}")
+                    creator.set_story(story=f"Error after {exception.retries} retries!")
                 pass
         story.add_done_callback(on_complete)
         

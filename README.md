@@ -4,7 +4,7 @@
 - Mauro Leandro Baez
 - Matias Manzur
 **Lecturer**: Maxim Glaida
-**Date**: 14/04/2025
+**Date**: 21/04/2025
 
 ## What is this?
 We decided to make a sims-like character creator, but instead of creating humans, you create animal mixes! It's as weird as it sounds... The animals themselves are made in 32 bits artstyle, so it might be a good idea to not maximize the window.
@@ -19,19 +19,20 @@ We decided to make a sims-like character creator, but instead of creating humans
 In order to run our project, just execute `install.sh` (or `install.bat` in Windows) in order to create a virtual environment and install the dependencies (Pillow & tk).
 
 Then you can start the LLM server with Docker.
-`docker pull matymanzur/ollama-creature-creator`
-`docker run --rm -it -p 11434:11434 matymanzur/ollama-creature-creator`
+`docker pull mauritobaez/design_patterns_assignment:latest`
+`docker run --rm -it -p 11434:11434 mauritobaez/design_patterns_assignment`
 
 Finally, in another terminal you can just run `./run.sh` (or `run.bat` in Windows).
 
 **Note:** If by any reason pip is unable to install tkinter, and your system's python installation does not include it by default, you may need to install it with something like `sudo apt install python3-tk`. It is a package used for generating the GUI.
 
 ## Design Patterns Applied
-The 3 design patterns chosen are: **Memento**, **Command** & **Singleton**.
+The 3 design patterns chosen are: **Proxy LLM**, **Timeout** & **Retry**.
 
-You can find Memento pattern in the `creator.py` file. It is used for the undo and redo buttons, by generating a `Snapshot` of the app main state.
+You can find our implementation of the Proxy LLM pattern in the `llm_proxy.py` file. Here we make sure to not waste tokens
+by using the cache. In a real world implementation said cache would most probably be shared with lots of users and it would expire after a certain amount of time. Obviously, the cache isn't shared between models. This is a great way of showing how imporante having a well configured proxy can be.
 
-Undo and Redo are just two examples of the Commands we have implemented. You can find all of them in the `command.py` file. The commands themselves are built in the `main.py` file using the Builder pattern. Each command contains an execute() method, that is in charge of making the corresponding changes.
+Timeout can be found in the `llm_client.py` file. By using a timeout you can make sure a user isn't left waiting indefinitely wasting resources in an api call that probably cannot be answered at that particular moment. In our case we make sure to give this situation a specific exception.
 
-Finally, the Singleton pattern is used in the `creator.py` and `command.py` files. Singleton is used in the `VersionManager`, in the `Creator` and in the `CommandBuilder`! 
+Finally, the Retry pattern can also be found in the `llm_client.py` file. We make sure to give the client (and our server) more than one attempt to fulfill the request. The random amount of time waited between retries is useful in real world scenarios when there might be network connectivity issues due to a high demand of users trying to access our service at the same time. Of course in this case it is overkill.
 

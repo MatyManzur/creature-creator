@@ -1,3 +1,4 @@
+import random
 import aiohttp
 import asyncio
 import yaml
@@ -63,4 +64,5 @@ class OllamaClient():
                 error = "Network error. Check if server is running, or if the URL is correct."
             except BaseException as e:
                 error = str(e)
+            await asyncio.sleep(random.uniform(0.1, 0.3))  
         raise RetryExceededError(error, self.retries)
