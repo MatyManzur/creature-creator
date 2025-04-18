@@ -10,6 +10,6 @@ until curl -s http://localhost:11434/version > /dev/null; do
 done
 
 echo "Ollama is up. Pulling tinyllama..."
-ollama pull tinyllama:1b
+ollama pull tinyllama
 echo "Pulling llama3.2..."
 ollama pull llama3.2:1b

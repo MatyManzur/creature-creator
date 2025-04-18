@@ -32,6 +32,7 @@ class Creator:
                 key: list(value)[0] for key, value in available_body_parts.items()
             }
             self.callbacks: list[callable] = []
+            self.cached_callback: callable = None
             self.story = ""
             self._initialized = True
     
@@ -44,6 +45,9 @@ class Creator:
     def subscribe_callback(self, callback: callable):
         self.callbacks.append(callback)
         callback()
+
+    def set_cached_callback(self, callback: callable):
+        self.cached_callback = callback
     
     def get_selected_body_part(self, type: BodyPartType) -> BodyPart | None:
         return self.selected_body_parts.get(type, None)
@@ -63,8 +67,10 @@ class Creator:
         for callback in self.callbacks:
             callback()
     
-    def set_story(self, story: str):
+    def set_story(self, story: str, was_cached: bool = False):
         self.story = story
+        if was_cached and self.cached_callback:
+            self.cached_callback()
         for callback in self.callbacks:
             callback()
 

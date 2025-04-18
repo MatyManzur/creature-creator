@@ -129,7 +129,8 @@ class GenerateStoryCommand(BaseCommand):
     
     def execute(self):
         creator = Creator.get_instance()
-        story: Future[str] = generate_story(
+        story: Future[str]
+        story, was_cached = generate_story(
             llm_proxy=LLMProxy.get_instance(),
             head=creator.get_selected_body_part(BodyPartType.HEAD),
             torso=creator.get_selected_body_part(BodyPartType.TORSO),
@@ -141,11 +142,11 @@ class GenerateStoryCommand(BaseCommand):
         def on_complete(_story: Future[str]):
             try:
                 story = _story.result()
-                creator.set_story(story=story)
-            except:
+                creator.set_story(story=story, was_cached=was_cached)
+            except Exception as e:
                 exception = _story.exception()
                 if isinstance(exception, RetryExceededError):
-                    creator.set_story(story=f"Error after {exception.retries} retries! {exception.reason}")
+                    creator.set_story(story=f"Error after {exception.retries} retries! {exception.reason} {e}")
                 pass
         story.add_done_callback(on_complete)
         

@@ -1,7 +1,7 @@
-ollama_server_url: "http://localhost:11434/api/generates"
+ollama_server_url: "http://localhost:11434/api/generate"
 available_models:
   - "llama3.2:1b"
-  - "tinyllama:1b"
+  - "tinyllama:latest"
 max_tokens: 120
 creativity: 20 # 0-100
 prompt: "Write only two sentences about a fictional character with {0} head, {1} torso, {2} legs, and {3} wings. Include the character's name and something special about his story."

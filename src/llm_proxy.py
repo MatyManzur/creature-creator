@@ -33,11 +33,13 @@ class LLMProxy:
         self.client: OllamaClient = OllamaClient.get_instance(OLLAMA_URL)
         self.cache: dict[str, str] = {}
 
-    def query(self, prompt, model) -> Future[str]:
+    def query(self, prompt, model) -> tuple[Future[str], bool]:
         future = asyncio.get_running_loop().create_future()
+        was_cached = False
         if prompt in self.cache:
             print("Returning cached answer!")
             future.set_result(self.cache[prompt])
+            was_cached = True
         else:
             async def fetch_and_cache():
                 print("Fetching answer from LLM...", flush=True)
@@ -50,4 +52,4 @@ class LLMProxy:
                 self.cache[prompt] = result
                 future.set_result(result)
             asyncio.create_task(fetch_and_cache())
-        return future
+        return future, was_cached
