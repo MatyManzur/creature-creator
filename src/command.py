@@ -143,7 +143,7 @@ class GenerateStoryCommand(BaseCommand):
             try:
                 story = _story.result()
                 creator.set_story(story=story, was_cached=was_cached)
-            except Exception as e:
+            except BaseException as e:
                 exception = _story.exception()
                 if isinstance(exception, RetryExceededError):
                     creator.set_story(story=f"Error after {exception.retries} retries!")

@@ -33,7 +33,8 @@ class TestLLMProxyAsync(unittest.IsolatedAsyncioTestCase):
         # Test querying with cached response
         test_prompt = "test prompt"
         cached_response = "cached response."
-        self.proxy.cache[test_prompt] = cached_response
+        self.proxy.cache["test-model"] = {}
+        self.proxy.cache["test-model"][test_prompt] = cached_response
         
         future, was_cached = self.proxy.query(test_prompt, "test-model")
         result = await future
@@ -58,7 +59,7 @@ class TestLLMProxyAsync(unittest.IsolatedAsyncioTestCase):
         
         self.assertFalse(was_cached)
         self.assertEqual(result, expected_response)
-        self.assertEqual(self.proxy.cache[test_prompt], expected_response)
+        self.assertEqual(self.proxy.cache["test-model"][test_prompt], expected_response)
         mock_instance.query.assert_called_once_with(test_prompt, "test-model")
 
     @patch('llm_proxy.OllamaClient')

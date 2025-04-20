@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, patch, AsyncMock
 import asyncio
 import aiohttp
-from llm_client import OllamaClient, TimeoutExceededError, InvalidResponseError, RetryExceededError, CreatureCreatorError
+from llm_client import OllamaClient, RetryExceededError, CreatureCreatorError
 
 class TestOllamaClient(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
